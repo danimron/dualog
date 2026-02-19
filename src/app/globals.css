@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/* Modern typography system */
+@layer base {
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply text-gray-900;
+    @apply leading-relaxed;
+  }
+}
+
+/* Improved prose styles for markdown */
+.prose {
+  @apply text-gray-700;
+  @apply leading-relaxed;
+  max-width: 68ch;
+}
+
+.prose h1 {
+  @apply text-4xl;
+  @apply font-bold;
+  @apply text-gray-900;
+  @apply mt-8;
+  @apply mb-4;
+  @apply leading-tight;
+  letter-spacing: -0.02em;
+}
+
+.prose h2 {
+  @apply text-2xl;
+  @apply font-semibold;
+  @apply text-gray-900;
+  @apply mt-8;
+  @apply mb-4;
+  @apply leading-tight;
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  @apply text-xl;
+  @apply font-semibold;
+  @apply text-gray-900;
+  @apply mt-6;
+  @apply mb-3;
+  @apply leading-snug;
+}
+
+.prose p {
+  @apply text-base;
+  @apply mt-0;
+  @apply mb-4;
+  @apply leading-relaxed;
+}
+
+.prose code {
+  @apply font-mono;
+  @apply text-sm;
+  @apply font-semibold;
+  @apply bg-gray-100;
+  @apply text-pink-600;
+  @apply px-1.5;
+  @apply py-0.5;
+  @apply rounded;
+  @apply before:content-[''] after:content-[''];
+}
+
+.prose pre {
+  @apply bg-gray-900;
+  @apply text-gray-100;
+  @apply overflow-x-auto;
+  @apply text-sm;
+  @apply leading-relaxed;
+  @apply mt-6;
+  @apply mb-6;
+  @apply rounded-lg;
+  @apply p-4;
+}
+
+.prose pre code {
+  @apply bg-transparent;
+  @apply text-gray-100;
+  @apply p-0;
+  @apply font-normal;
+  @apply before:content-none after:content-none;
+}
+
+.prose a {
+  @apply text-blue-600;
+  @apply font-semibold;
+  @apply underline;
+  @apply underline-offset-2;
+  @apply decoration-1;
+  @apply hover:decoration-2;
+  @apply hover:text-blue-700;
+  @apply transition-colors;
+}
+
+.prose strong {
+  @apply font-semibold;
+  @apply text-gray-900;
+}
+
+.prose em {
+  @apply italic;
+}
+
+.prose ul {
+  @apply list-disc;
+  @apply ml-6;
+  @apply mt-4;
+  @apply mb-4;
+  @apply space-y-2;
+}
+
+.prose ol {
+  @apply list-decimal;
+  @apply ml-6;
+  @apply mt-4;
+  @apply mb-4;
+  @apply space-y-2;
+}
+
+.prose li {
+  @apply pl-1;
+}
+
+.prose blockquote {
+  @apply border-l-4;
+  @apply border-gray-200;
+  @apply pl-4;
+  @apply italic;
+  @apply text-gray-600;
+  @apply my-6;
+}
+
+.prose img {
+  @apply rounded-lg;
+  @apply shadow-sm;
+  @apply my-6;
+}
+
+.prose hr {
+  @apply border-gray-200;
+  @apply my-8;
+}
+
+/* Markdown preview specific styles */
+.markdown-preview .prose {
+  max-width: none;
+}
+
+.markdown-preview .prose p {
+  @apply mb-3;
+  @apply text-base;
+  @apply leading-relaxed;
+  @apply text-gray-600;
+}
+
+.markdown-preview .prose h1,
+.markdown-preview .prose h2,
+.markdown-preview .prose h3 {
+  @apply mt-3;
+  @apply mb-2;
+  @apply text-lg;
+  @apply font-semibold;
+  @apply text-gray-900;
+}
+
+.markdown-preview .prose ul,
+.markdown-preview .prose ol {
+  @apply mt-2;
+  @apply mb-3;
+  @apply space-y-1;
+  @apply text-base;
+  @apply text-gray-600;
+}
+
+.markdown-preview .prose li {
+  @apply text-base;
+  @apply leading-relaxed;
+}
+
+.markdown-preview .prose code {
+  @apply text-sm;
+  @apply bg-gray-100;
+  @apply text-gray-800;
+  @apply px-1;
+  @apply py-0.5;
+}
+
+.markdown-preview .prose strong {
+  @apply font-semibold;
+  @apply text-gray-900;
+}
+
+.markdown-preview .prose a {
+  @apply text-blue-600;
+  @apply hover:underline;
+}
+
+/* Line clamp for preview text */
+.line-clamp-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

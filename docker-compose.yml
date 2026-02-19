@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: dualog-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dualog
+      POSTGRES_PASSWORD: dualog_secure_password
+      POSTGRES_DB: dualog
+    # Note: No port mapping exposed - database only accessible within Docker network
+    # For development, uncomment the line below to access from host
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dualog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dualog-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://dualog:dualog_secure_password@db:5432/dualog
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-change-this-to-a-random-secret-in-production}
+      - BETTER_AUTH_URL=http://localhost:3000
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
