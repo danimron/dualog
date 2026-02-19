@@ -16,11 +16,13 @@ export async function getPublicPosts() {
     // Fetch user info separately for each post
     const postsWithAuthors = await Promise.all(
       publicPosts.map(async (post) => {
-        const [author] = await db
+        const authorRows = await db
           .select({ name: user.name, email: user.email })
           .from(user)
           .where(eq(user.id, post.userId))
           .limit(1)
+        
+        const author = authorRows[0]
         
         return {
           id: post.id,
@@ -29,7 +31,10 @@ export async function getPublicPosts() {
           isPublic: post.isPublic,
           createdAt: post.createdAt,
           updatedAt: post.updatedAt,
-          author: author || { name: 'Unknown', email: '' },
+          author: {
+            name: author?.name ?? 'Unknown',
+            email: author?.email ?? '',
+          },
         }
       })
     )

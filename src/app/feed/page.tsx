@@ -54,12 +54,12 @@ export default async function FeedPage() {
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                       <span className="text-gray-700 font-medium text-sm">
-                        {(post.author?.name || 'U').charAt(0).toUpperCase()}
+                        {post.author.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-gray-900 text-sm">
-                        {post.author?.name || 'Unknown'}
+                        {post.author.name}
                       </p>
                       <span className="text-gray-300">·</span>
                       <p className="text-sm text-gray-500">
