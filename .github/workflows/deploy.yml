@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   build-and-deploy:
     runs-on: self-hosted
@@ -25,16 +21,13 @@ jobs:
           echo "BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}" >> .env
           echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
           echo "BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
 
       - name: Build Docker image
-        run: |
-          cd /root/.openclaw/workspace/dualog
-          docker compose build app
+        run: docker compose build app
 
       - name: Deploy
-        run: |
-          cd /root/.openclaw/workspace/dualog
-          docker compose up -d app
+        run: docker compose up -d
 
       - name: Health check
         run: |
@@ -42,6 +35,5 @@ jobs:
           curl -f http://127.0.0.1:3000/ || exit 1
 
       - name: Cleanup old images
-        run: |
-          docker image prune -f
+        run: docker image prune -f
         continue-on-error: true
