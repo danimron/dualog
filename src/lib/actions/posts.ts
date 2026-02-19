@@ -1,14 +1,14 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { posts, users } from '@/db/schema'
+import { posts, user } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
     console.log('Fetching public posts...')
     
-    // First try without the join to see if posts table works
+    // Query posts without join first
     const simplePosts = await db
       .select({
         id: posts.id,
@@ -25,11 +25,11 @@ export async function getPublicPosts() {
     
     console.log('Simple posts query result:', simplePosts.length, 'posts found')
     
-    // Now get author info separately
+    // Now get author info separately using the actual table name
     const postsWithAuthors = await Promise.all(
       simplePosts.map(async (post) => {
-        const author = await db.query.users.findFirst({
-          where: eq(users.id, post.userId),
+        const author = await db.query.user.findFirst({
+          where: eq(user.id, post.userId),
           columns: { name: true, email: true },
         })
         return {
