@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: dualog
-      POSTGRES_PASSWORD: dualog_secure_password
+      POSTGRES_PASSWORD: sEQ8Gsb7SpmU726yVlSi
       POSTGRES_DB: dualog
     # Note: No port mapping exposed - database only accessible within Docker network
     # For development, uncomment the line below to access from host
@@ -30,10 +30,10 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     environment:
-      - DATABASE_URL=postgresql://dualog:dualog_secure_password@db:5432/dualog
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-change-this-to-a-random-secret-in-production}
-      - BETTER_AUTH_URL=http://localhost:3000
+      - DATABASE_URL=postgresql://dualog:sEQ8Gsb7SpmU726yVlSi@db:5432/dualog
+      - NEXT_PUBLIC_APP_URL=https://dualog.goedigitale.com
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-PzpsE+eHHtv+KEnFBh5wlDBfy8qddbO1Fs+wMzu/pGI=}
+      - BETTER_AUTH_URL=https://dualog.goedigitale.com
       - NODE_ENV=production
     depends_on:
       db:
