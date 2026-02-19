@@ -6,24 +6,40 @@ import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
-    const publicPosts = await db
+    console.log('Fetching public posts...')
+    
+    // First try without the join to see if posts table works
+    const simplePosts = await db
       .select({
         id: posts.id,
         title: posts.title,
         content: posts.content,
+        isPublic: posts.isPublic,
         createdAt: posts.createdAt,
         updatedAt: posts.updatedAt,
-        author: {
-          name: users.name,
-          email: users.email,
-        },
+        userId: posts.userId,
       })
       .from(posts)
-      .innerJoin(users, eq(posts.userId, users.id))
       .where(eq(posts.isPublic, true))
       .orderBy(desc(posts.createdAt))
+    
+    console.log('Simple posts query result:', simplePosts.length, 'posts found')
+    
+    // Now get author info separately
+    const postsWithAuthors = await Promise.all(
+      simplePosts.map(async (post) => {
+        const author = await db.query.users.findFirst({
+          where: eq(users.id, post.userId),
+          columns: { name: true, email: true },
+        })
+        return {
+          ...post,
+          author: author || { name: 'Unknown', email: '' },
+        }
+      })
+    )
 
-    return { success: true, data: publicPosts }
+    return { success: true, data: postsWithAuthors }
   } catch (error) {
     console.error('Error fetching public posts:', error)
     return { success: false, error: 'Failed to fetch posts' }
