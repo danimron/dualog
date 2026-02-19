@@ -62,7 +62,23 @@ export async function getPostById(id: string) {
       return { success: false, error: 'Post is private' }
     }
 
-    return { success: true, data: post }
+    // Fetch author info
+    const [author] = await db
+      .select({ name: user.name, email: user.email })
+      .from(user)
+      .where(eq(user.id, post.userId))
+      .limit(1)
+
+    return {
+      success: true,
+      data: {
+        ...post,
+        user: {
+          name: author?.name ?? 'Unknown',
+          email: author?.email ?? '',
+        },
+      },
+    }
   } catch (error) {
     console.error('Error fetching post:', error)
     return { success: false, error: 'Failed to fetch post' }
