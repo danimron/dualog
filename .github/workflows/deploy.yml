@@ -29,10 +29,38 @@ jobs:
       - name: Deploy
         run: docker compose up -d
 
+      - name: Wait for container to be healthy
+        run: |
+          echo "Waiting for container to start..."
+          sleep 10
+          
+          # Wait up to 60 seconds for container to be healthy
+          for i in {1..12}; do
+            if docker ps | grep dualog-app | grep -q healthy; then
+              echo "Container is healthy!"
+              break
+            fi
+            echo "Waiting... ($i/12)"
+            sleep 5
+          done
+          
+          # Check if container is running
+          docker ps | grep dualog-app
+
       - name: Health check
         run: |
-          sleep 30
-          curl -f http://127.0.0.1:3000/ || exit 1
+          echo "Testing health endpoint..."
+          # Retry up to 5 times with 5 second delay
+          for i in {1..5}; do
+            if curl -f http://127.0.0.1:3000/; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Health check failed, retrying... ($i/5)"
+            sleep 5
+          done
+          echo "Health check failed after 5 attempts"
+          exit 1
 
       - name: Cleanup old images
         run: docker image prune -f
