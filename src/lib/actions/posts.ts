@@ -6,38 +6,35 @@ import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
-    console.log('Fetching public posts...')
-    
-    // Query posts without join first
-    const simplePosts = await db
-      .select({
-        id: posts.id,
-        title: posts.title,
-        content: posts.content,
-        isPublic: posts.isPublic,
-        createdAt: posts.createdAt,
-        updatedAt: posts.updatedAt,
-        userId: posts.userId,
-      })
-      .from(posts)
-      .where(eq(posts.isPublic, true))
-      .orderBy(desc(posts.createdAt))
-    
-    console.log('Simple posts query result:', simplePosts.length, 'posts found')
-    
-    // Now get author info separately using the actual table name
-    const postsWithAuthors = await Promise.all(
-      simplePosts.map(async (post) => {
-        const author = await db.query.user.findFirst({
-          where: eq(user.id, post.userId),
-          columns: { name: true, email: true },
-        })
-        return {
-          ...post,
-          author: author || { name: 'Unknown', email: '' },
-        }
-      })
-    )
+    // Query posts with user info using a raw query to avoid Drizzle relation issues
+    const result = await db.execute(`
+      SELECT 
+        p.id, 
+        p.title, 
+        p.content, 
+        p.is_public as "isPublic",
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt",
+        u.name as "authorName",
+        u.email as "authorEmail"
+      FROM posts p
+      INNER JOIN "user" u ON p.user_id = u.id
+      WHERE p.is_public = true
+      ORDER BY p.created_at DESC
+    `)
+
+    const postsWithAuthors = result.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      isPublic: row.isPublic,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      author: {
+        name: row.authorName || 'Unknown',
+        email: row.authorEmail || '',
+      },
+    }))
 
     return { success: true, data: postsWithAuthors }
   } catch (error) {
