@@ -6,32 +6,32 @@ import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
-    // Use Drizzle ORM with relations to fetch public posts with author info
+    // Simple query like getUserPosts - without relations
     const publicPosts = await db.query.posts.findMany({
       where: eq(posts.isPublic, true),
       orderBy: [desc(posts.createdAt)],
-      with: {
-        user: {
-          columns: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     })
 
-    // Transform the result to match the expected format
-    const formattedPosts = publicPosts.map((post) => ({
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      isPublic: post.isPublic,
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
-      author: post.user || { name: 'Unknown', email: '' },
-    }))
+    // Fetch user info separately for each post
+    const postsWithAuthors = await Promise.all(
+      publicPosts.map(async (post) => {
+        const author = await db.query.user.findFirst({
+          where: eq(user.id, post.userId),
+          columns: { name: true, email: true },
+        })
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          isPublic: post.isPublic,
+          createdAt: post.createdAt,
+          updatedAt: post.updatedAt,
+          author: author || { name: 'Unknown', email: '' },
+        }
+      })
+    )
 
-    return { success: true, data: formattedPosts }
+    return { success: true, data: postsWithAuthors }
   } catch (error) {
     console.error('Error fetching public posts:', error)
     return { success: false, error: 'Failed to fetch posts' }
