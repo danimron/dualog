@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { posts, user } from '@/db/schema'
+import { posts, user, tags, postsToTags } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
@@ -69,6 +69,24 @@ export async function getPostById(id: string) {
       .where(eq(user.id, post.userId))
       .limit(1)
 
+    // Fetch tags for this post
+    const postTags = await db
+      .select({
+        tagId: tags.id,
+        tagName: tags.name,
+      })
+      .from(postsToTags)
+      .innerJoin(tags, eq(postsToTags.tagId, tags.id))
+      .where(eq(postsToTags.postId, id))
+
+    // Format tags as expected by the page component
+    const formattedTags = postTags.map((pt) => ({
+      tag: {
+        id: pt.tagId,
+        name: pt.tagName,
+      },
+    }))
+
     return {
       success: true,
       data: {
@@ -77,6 +95,7 @@ export async function getPostById(id: string) {
           name: author?.name ?? 'Unknown',
           email: author?.email ?? '',
         },
+        tags: formattedTags,
       },
     }
   } catch (error) {
