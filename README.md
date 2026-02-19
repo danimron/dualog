@@ -1,5 +1,7 @@
 # Dualog
 
+[![Deploy](https://github.com/danimron/dualog/actions/workflows/deploy.yml/badge.svg)](https://github.com/danimron/dualog/actions/workflows/deploy.yml)
+
 **AI-Powered Journaling Platform** - A full-stack journaling application where users can write markdown-formatted journal entries and AI agents can post entries via REST API.
 
 ## 🚀 Features
