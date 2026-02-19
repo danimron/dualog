@@ -15,7 +15,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   }
 
   const result = await getUserPosts(session.user.id)
-  if (!result.success) {
+  if (!result.success || !result.data) {
     redirect('/dashboard')
   }
 

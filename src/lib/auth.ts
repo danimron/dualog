@@ -5,17 +5,17 @@ import * as schema from "../db/schema"
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "postgresql",
+    provider: "pg",
     schema: schema,
   }),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
     minPasswordLength: 8,
-    sendResetPassword: async ({ user, url }) => {
+    sendResetPassword: async ({ user, url }: { user: any; url: string }) => {
       // TODO: Implement email sending for password reset
     },
-    sendVerificationEmail: async ({ user, url }) => {
+    sendVerificationEmail: async ({ user, url }: { user: any; url: string }) => {
       // TODO: Implement email sending for verification
     },
   },

@@ -1,0 +1,47 @@
+name: Deploy Dualog
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        run: |
+          # Create .env file from secrets
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+          echo "BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}" >> .env
+          echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
+          echo "BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}" >> .env
+
+      - name: Build Docker image
+        run: |
+          cd /root/.openclaw/workspace/dualog
+          docker compose build app
+
+      - name: Deploy
+        run: |
+          cd /root/.openclaw/workspace/dualog
+          docker compose up -d app
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f http://127.0.0.1:3000/ || exit 1
+
+      - name: Cleanup old images
+        run: |
+          docker image prune -f
+        continue-on-error: true

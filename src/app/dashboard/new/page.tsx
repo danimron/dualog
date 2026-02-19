@@ -14,7 +14,9 @@ export default async function NewPostPage() {
     redirect('/login')
   }
 
-  async function handleCreatePost(formData: FormData) {
+  const userId = session.user.id
+
+  async function handleCreatePost(formData: FormData): Promise<void> {
     'use server'
 
     const title = formData.get('title') as string
@@ -22,18 +24,18 @@ export default async function NewPostPage() {
     const isPublic = formData.get('isPublic') === 'true'
 
     if (!title || !content) {
-      return { error: 'Title and content are required' }
+      throw new Error('Title and content are required')
     }
 
     const result = await createPost({
       title,
       content,
       isPublic,
-      userId: session.user.id,
+      userId,
     })
 
     if (!result.success) {
-      return { error: result.error }
+      throw new Error(result.error || 'Failed to create post')
     }
 
     redirect('/dashboard')

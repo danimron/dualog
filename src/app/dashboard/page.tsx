@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   }
 
   const result = await getUserPosts(session.user.id)
-  const posts = result.success ? result.data : []
+  const posts = result.success && result.data ? result.data : []
 
   return (
     <div className="min-h-screen bg-gray-50">

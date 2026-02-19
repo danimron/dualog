@@ -21,8 +21,10 @@ export default async function ViewPostPage({ params }: { params: Promise<{ id: s
     redirect('/login')
   }
 
-  const result = await getUserPosts(session.user.id)
-  if (!result.success) {
+  const userId = session.user.id
+
+  const result = await getUserPosts(userId)
+  if (!result.success || !result.data) {
     redirect('/dashboard')
   }
 
@@ -34,7 +36,7 @@ export default async function ViewPostPage({ params }: { params: Promise<{ id: s
 
   async function handleDeletePost() {
     'use server'
-    await deletePost(id, session.user.id)
+    await deletePost(id, userId)
     redirect('/dashboard')
   }
 

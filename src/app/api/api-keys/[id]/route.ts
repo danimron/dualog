@@ -11,8 +11,9 @@ import { eq } from 'drizzle-orm'
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   // Authenticate user session
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -33,7 +34,7 @@ export async function DELETE(
   try {
     // Verify the API key belongs to the user
     const apiKey = await db.query.apiKeys.findFirst({
-      where: eq(apiKeys.id, params.id),
+      where: eq(apiKeys.id, id),
     })
 
     if (!apiKey) {
@@ -61,7 +62,7 @@ export async function DELETE(
     }
 
     // Delete the API key
-    await db.delete(apiKeys).where(eq(apiKeys.id, params.id))
+    await db.delete(apiKeys).where(eq(apiKeys.id, id))
 
     return NextResponse.json(
       {

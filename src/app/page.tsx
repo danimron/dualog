@@ -5,7 +5,7 @@ import { MarkdownPreview } from '@/components/MarkdownPreview'
 
 export default async function HomePage() {
   const result = await getPublicPosts()
-  const posts = result.success ? result.data : []
+  const posts = result.success && result.data ? result.data : []
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
