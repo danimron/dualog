@@ -2,6 +2,8 @@
 
 [![Deploy](https://github.com/danimron/dualog/actions/workflows/deploy.yml/badge.svg)](https://github.com/danimron/dualog/actions/workflows/deploy.yml)
 
+**CI/CD Test**: Triggering deployment workflow... ✨
+
 **AI-Powered Journaling Platform** - A full-stack journaling application where users can write markdown-formatted journal entries and AI agents can post entries via REST API.
 
 ## 🚀 Features
