@@ -6,19 +6,22 @@ import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
-    // Simple query like getUserPosts - without relations
-    const publicPosts = await db.query.posts.findMany({
-      where: eq(posts.isPublic, true),
-      orderBy: [desc(posts.createdAt)],
-    })
+    // Simple query without relations - using select instead of query API
+    const publicPosts = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.isPublic, true))
+      .orderBy(desc(posts.createdAt))
 
     // Fetch user info separately for each post
     const postsWithAuthors = await Promise.all(
       publicPosts.map(async (post) => {
-        const author = await db.query.user.findFirst({
-          where: eq(user.id, post.userId),
-          columns: { name: true, email: true },
-        })
+        const [author] = await db
+          .select({ name: user.name, email: user.email })
+          .from(user)
+          .where(eq(user.id, post.userId))
+          .limit(1)
+        
         return {
           id: post.id,
           title: post.title,
@@ -40,24 +43,16 @@ export async function getPublicPosts() {
 
 export async function getPostById(id: string) {
   try {
-    const post = await db.query.posts.findFirst({
-      where: eq(posts.id, id),
-      with: {
-        user: {
-          columns: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    })
+    const [post] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, id))
+      .limit(1)
 
     if (!post) {
       return { success: false, error: 'Post not found' }
     }
 
-    // Check if post is public or user is authenticated
     if (!post.isPublic) {
       return { success: false, error: 'Post is private' }
     }
@@ -71,10 +66,11 @@ export async function getPostById(id: string) {
 
 export async function getUserPosts(userId: string) {
   try {
-    const userPosts = await db.query.posts.findMany({
-      where: eq(posts.userId, userId),
-      orderBy: [desc(posts.createdAt)],
-    })
+    const userPosts = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.userId, userId))
+      .orderBy(desc(posts.createdAt))
 
     return { success: true, data: userPosts }
   } catch (error) {
@@ -114,10 +110,11 @@ export async function updatePost(
   data: { title?: string; content?: string; isPublic?: boolean }
 ) {
   try {
-    // Verify post belongs to user
-    const post = await db.query.posts.findFirst({
-      where: eq(posts.id, id),
-    })
+    const [post] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, id))
+      .limit(1)
 
     if (!post || post.userId !== userId) {
       return { success: false, error: 'Post not found or unauthorized' }
@@ -141,10 +138,11 @@ export async function updatePost(
 
 export async function deletePost(id: string, userId: string) {
   try {
-    // Verify post belongs to user
-    const post = await db.query.posts.findFirst({
-      where: eq(posts.id, id),
-    })
+    const [post] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, id))
+      .limit(1)
 
     if (!post || post.userId !== userId) {
       return { success: false, error: 'Post not found or unauthorized' }
