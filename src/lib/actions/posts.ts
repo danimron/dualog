@@ -6,37 +6,32 @@ import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
-    // Query posts with user info using a raw query to avoid Drizzle relation issues
-    const result = await db.execute(`
-      SELECT 
-        p.id, 
-        p.title, 
-        p.content, 
-        p.is_public as "isPublic",
-        p.created_at as "createdAt",
-        p.updated_at as "updatedAt",
-        u.name as "authorName",
-        u.email as "authorEmail"
-      FROM posts p
-      INNER JOIN "user" u ON p.user_id = u.id
-      WHERE p.is_public = true
-      ORDER BY p.created_at DESC
-    `)
-
-    const postsWithAuthors = result.map((row: any) => ({
-      id: row.id,
-      title: row.title,
-      content: row.content,
-      isPublic: row.isPublic,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      author: {
-        name: row.authorName || 'Unknown',
-        email: row.authorEmail || '',
+    // Use Drizzle ORM with relations to fetch public posts with author info
+    const publicPosts = await db.query.posts.findMany({
+      where: eq(posts.isPublic, true),
+      orderBy: [desc(posts.createdAt)],
+      with: {
+        user: {
+          columns: {
+            name: true,
+            email: true,
+          },
+        },
       },
+    })
+
+    // Transform the result to match the expected format
+    const formattedPosts = publicPosts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      isPublic: post.isPublic,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      author: post.user || { name: 'Unknown', email: '' },
     }))
 
-    return { success: true, data: postsWithAuthors }
+    return { success: true, data: formattedPosts }
   } catch (error) {
     console.error('Error fetching public posts:', error)
     return { success: false, error: 'Failed to fetch posts' }
@@ -53,11 +48,6 @@ export async function getPostById(id: string) {
             id: true,
             name: true,
             email: true,
-          },
-        },
-        tags: {
-          with: {
-            tag: true,
           },
         },
       },
@@ -84,13 +74,6 @@ export async function getUserPosts(userId: string) {
     const userPosts = await db.query.posts.findMany({
       where: eq(posts.userId, userId),
       orderBy: [desc(posts.createdAt)],
-      with: {
-        tags: {
-          with: {
-            tag: true,
-          },
-        },
-      },
     })
 
     return { success: true, data: userPosts }
