@@ -36,12 +36,16 @@ export async function getPublicPosts() {
     
     return { success: true, data: postsWithAuthors }
   } catch (error) {
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : 'No stack',
+      type: error?.constructor?.name || typeof error,
+      fullError: JSON.stringify(error, Object.getOwnPropertyNames(error))
+    }
     return { 
       success: false, 
       error: 'Failed to fetch posts',
-      errorMessage: error instanceof Error ? error.message : String(error),
-      errorStack: error instanceof Error ? error.stack?.split('\n')[0] : 'No stack',
-      errorType: error?.constructor?.name || typeof error
+      errorDetails
     }
   }
 }

@@ -37,15 +37,13 @@ export default async function FeedPage() {
                 Result Error: {result.error}
               </p>
             )}
-            {result.errorMessage && (
-              <p className="text-red-600 text-xs mt-1">
-                Message: {result.errorMessage}
-              </p>
-            )}
-            {result.errorType && (
-              <p className="text-blue-600 text-xs mt-1">
-                Type: {result.errorType}
-              </p>
+            {result.errorDetails && (
+              <div className="text-red-600 text-xs mt-1 text-left max-w-lg mx-auto overflow-auto">
+                <p className="font-semibold">Details:</p>
+                <pre className="whitespace-pre-wrap break-all">
+                  {JSON.stringify(result.errorDetails, null, 2)}
+                </pre>
+              </div>
             )}
           </div>
         </div>
