@@ -6,16 +6,21 @@ import { desc, eq } from 'drizzle-orm'
 
 export async function getPublicPosts() {
   try {
+    console.log('[DEBUG] Fetching public posts...')
+    
     // Simple query without relations - using select instead of query API
     const publicPosts = await db
       .select()
       .from(posts)
       .where(eq(posts.isPublic, true))
       .orderBy(desc(posts.createdAt))
+    
+    console.log('[DEBUG] Found posts:', publicPosts.length)
 
     // Fetch user info separately for each post
     const postsWithAuthors = await Promise.all(
       publicPosts.map(async (post) => {
+        console.log('[DEBUG] Fetching author for post:', post.id)
         const authorRows = await db
           .select({ name: user.name, email: user.email })
           .from(user)
@@ -23,6 +28,7 @@ export async function getPublicPosts() {
           .limit(1)
         
         const author = authorRows[0]
+        console.log('[DEBUG] Author found:', author?.name || 'Unknown')
         
         return {
           id: post.id,
@@ -38,10 +44,11 @@ export async function getPublicPosts() {
         }
       })
     )
-
+    
+    console.log('[DEBUG] Returning posts with authors:', postsWithAuthors.length)
     return { success: true, data: postsWithAuthors }
   } catch (error) {
-    console.error('Error fetching public posts:', error)
+    console.error('[DEBUG] Error fetching public posts:', error)
     return { success: false, error: 'Failed to fetch posts' }
   }
 }
