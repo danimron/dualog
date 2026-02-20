@@ -9,10 +9,8 @@ services:
       POSTGRES_USER: dualog
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       POSTGRES_DB: dualog
-    # Note: No port mapping exposed - database only accessible within Docker network
-    # For development, uncomment the line below to access from host
-    # ports:
-    #   - "127.0.0.1:5432:5432"
+    # Use IP directly to avoid Node.js 20 DNS resolution issues
+      # Database accessible via 172.22.0.2:5432 within Docker network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -30,15 +28,19 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     environment:
-      # Use IP directly to avoid Node.js 20 DNS resolution issues in Docker
       - DATABASE_URL=postgresql://dualog:${POSTGRES_PASSWORD:-changeme}@172.22.0.2:5432/dualog
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://dualog.goedigitale.com}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-changeme}
       - BETTER_AUTH_URL=${BETTER_AUTH_URL:-https://dualog.goedigitale.com}
-      - NODE_ENV=production
+      - NODE_ENV=development
+      - NODE_OPTIONS=--dns-result-order=verbatim
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - node_modules:/app/node_modules
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000"]
       interval: 30s

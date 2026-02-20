@@ -62,12 +62,6 @@ export function Navbar() {
               // Logged in navigation
               <>
                 <Link
-                  href="/feed"
-                  className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
-                >
-                  Feed
-                </Link>
-                <Link
                   href="/dashboard"
                   className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
                 >
@@ -92,12 +86,6 @@ export function Navbar() {
             ) : (
               // Logged out navigation
               <>
-                <Link
-                  href="/feed"
-                  className="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Feed
-                </Link>
                 <Link
                   href="/login"
                   className="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"

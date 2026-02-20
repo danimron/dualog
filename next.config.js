@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // Temporarily disabled standalone mode to reduce memory usage
+  // output: 'standalone',
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
