@@ -2,53 +2,38 @@
 
 import { db } from '@/lib/db'
 import { posts, user, tags, postsToTags } from '@/db/schema'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 
 // Import table directly to avoid schema issues
 const postsTable = posts
 
 export async function getPublicPosts() {
   try {
-    console.log('[DEBUG] Fetching public posts...')
+    // Try raw SQL query to avoid Drizzle issues
+    const result = await db.execute(sql`
+      SELECT 
+        p.id, p.title, p.content, p.is_public, p.user_id, p.created_at, p.updated_at,
+        u.name as author_name, u.email as author_email
+      FROM posts p
+      LEFT JOIN "user" u ON p.user_id = u.id
+      WHERE p.is_public = true
+      ORDER BY p.created_at DESC
+    `)
     
-    // Simple query without relations - using select instead of query API
-    const publicPosts = await db
-      .select()
-      .from(postsTable)
-      .where(eq(postsTable.isPublic, true))
-      .orderBy(desc(postsTable.createdAt))
+    // Format result to match expected structure
+    const postsWithAuthors = result.rows.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      isPublic: row.is_public,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      author: {
+        name: row.author_name ?? 'Unknown',
+        email: row.author_email ?? '',
+      },
+    }))
     
-    console.log('[DEBUG] Found posts:', publicPosts.length)
-
-    // Fetch user info separately for each post
-    const postsWithAuthors = await Promise.all(
-      publicPosts.map(async (post) => {
-        console.log('[DEBUG] Fetching author for post:', post.id)
-        const authorRows = await db
-          .select({ name: user.name, email: user.email })
-          .from(user)
-          .where(eq(user.id, post.userId))
-          .limit(1)
-        
-        const author = authorRows[0]
-        console.log('[DEBUG] Author found:', author?.name || 'Unknown')
-        
-        return {
-          id: post.id,
-          title: post.title,
-          content: post.content,
-          isPublic: post.isPublic,
-          createdAt: post.createdAt,
-          updatedAt: post.updatedAt,
-          author: {
-            name: author?.name ?? 'Unknown',
-            email: author?.email ?? '',
-          },
-        }
-      })
-    )
-    
-    console.log('[DEBUG] Returning posts with authors:', postsWithAuthors.length)
     return { success: true, data: postsWithAuthors }
   } catch (error) {
     return { 
@@ -142,7 +127,7 @@ export async function createPost(data: {
 }) {
   try {
     const [newPost] = await db
-      .insert(posts)
+      .insert(postsTable)
       .values({
         id: crypto.randomUUID(),
         title: data.title,
