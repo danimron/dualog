@@ -48,10 +48,13 @@ export async function getPublicPosts() {
     console.log('[DEBUG] Returning posts with authors:', postsWithAuthors.length)
     return { success: true, data: postsWithAuthors }
   } catch (error) {
-    console.error('[DEBUG] Full error object:', JSON.stringify(error, null, 2))
-    console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack')
-    console.error('[DEBUG] Error message:', error instanceof Error ? error.message : String(error))
-    return { success: false, error: 'Failed to fetch posts' }
+    return { 
+      success: false, 
+      error: 'Failed to fetch posts',
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack?.split('\n')[0] : 'No stack',
+      errorType: error?.constructor?.name || typeof error
+    }
   }
 }
 

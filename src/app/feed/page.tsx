@@ -37,6 +37,16 @@ export default async function FeedPage() {
                 Result Error: {result.error}
               </p>
             )}
+            {result.errorMessage && (
+              <p className="text-red-600 text-xs mt-1">
+                Message: {result.errorMessage}
+              </p>
+            )}
+            {result.errorType && (
+              <p className="text-blue-600 text-xs mt-1">
+                Type: {result.errorType}
+              </p>
+            )}
           </div>
         </div>
       </div>
