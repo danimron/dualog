@@ -77,7 +77,7 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {posts.slice(0, 5).map((post) => (
+            {posts.slice(0, 5).map((post: { id: string; title: string; content: string; isPublic: boolean; createdAt: Date; updatedAt: Date; author: { name: string; email: string } }) => (
               <Link
                 key={post.id}
                 href={`/feed/${post.id}`}
