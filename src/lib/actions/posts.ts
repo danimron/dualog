@@ -4,6 +4,9 @@ import { db } from '@/lib/db'
 import { posts, user, tags, postsToTags } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
 
+// Import table directly to avoid schema issues
+const postsTable = posts
+
 export async function getPublicPosts() {
   try {
     console.log('[DEBUG] Fetching public posts...')
@@ -11,9 +14,9 @@ export async function getPublicPosts() {
     // Simple query without relations - using select instead of query API
     const publicPosts = await db
       .select()
-      .from(posts)
-      .where(eq(posts.isPublic, true))
-      .orderBy(desc(posts.createdAt))
+      .from(postsTable)
+      .where(eq(postsTable.isPublic, true))
+      .orderBy(desc(postsTable.createdAt))
     
     console.log('[DEBUG] Found posts:', publicPosts.length)
 
@@ -62,8 +65,8 @@ export async function getPostById(id: string) {
   try {
     const [post] = await db
       .select()
-      .from(posts)
-      .where(eq(posts.id, id))
+      .from(postsTable)
+      .where(eq(postsTable.id, id))
       .limit(1)
 
     if (!post) {
@@ -120,9 +123,9 @@ export async function getUserPosts(userId: string) {
   try {
     const userPosts = await db
       .select()
-      .from(posts)
-      .where(eq(posts.userId, userId))
-      .orderBy(desc(posts.createdAt))
+      .from(postsTable)
+      .where(eq(postsTable.userId, userId))
+      .orderBy(desc(postsTable.createdAt))
 
     return { success: true, data: userPosts }
   } catch (error) {
@@ -164,8 +167,8 @@ export async function updatePost(
   try {
     const [post] = await db
       .select()
-      .from(posts)
-      .where(eq(posts.id, id))
+      .from(postsTable)
+      .where(eq(postsTable.id, id))
       .limit(1)
 
     if (!post || post.userId !== userId) {
@@ -173,12 +176,12 @@ export async function updatePost(
     }
 
     const [updatedPost] = await db
-      .update(posts)
+      .update(postsTable)
       .set({
         ...data,
         updatedAt: new Date(),
       })
-      .where(eq(posts.id, id))
+      .where(eq(postsTable.id, id))
       .returning()
 
     return { success: true, data: updatedPost }
@@ -192,15 +195,15 @@ export async function deletePost(id: string, userId: string) {
   try {
     const [post] = await db
       .select()
-      .from(posts)
-      .where(eq(posts.id, id))
+      .from(postsTable)
+      .where(eq(postsTable.id, id))
       .limit(1)
 
     if (!post || post.userId !== userId) {
       return { success: false, error: 'Post not found or unauthorized' }
     }
 
-    await db.delete(posts).where(eq(posts.id, id))
+    await db.delete(postsTable).where(eq(postsTable.id, id))
 
     return { success: true }
   } catch (error) {
