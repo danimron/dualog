@@ -5,7 +5,15 @@ import { MarkdownPreview } from '@/components/MarkdownPreview'
 import { Navbar } from '@/components/Navbar'
 
 export default async function FeedPage() {
-  const result = await getPublicPosts()
+  let result
+  let errorMsg = ''
+  
+  try {
+    result = await getPublicPosts()
+  } catch (e) {
+    errorMsg = e instanceof Error ? e.message : String(e)
+    result = { success: false, error: errorMsg }
+  }
 
   if (!result.success || !result.data) {
     return (
@@ -19,6 +27,11 @@ export default async function FeedPage() {
             <p className="text-gray-600">
               Unable to load posts. Please try again later.
             </p>
+            {errorMsg && (
+              <p className="text-red-500 text-sm mt-4 font-mono">
+                Error: {errorMsg}
+              </p>
+            )}
           </div>
         </div>
       </div>
