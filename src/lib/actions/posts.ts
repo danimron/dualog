@@ -21,7 +21,7 @@ export async function getPublicPosts() {
     `)
     
     // Format result to match expected structure
-    const postsWithAuthors = result.rows.map((row: any) => ({
+    const postsWithAuthors = result.map((row: any) => ({
       id: row.id,
       title: row.title,
       content: row.content,
