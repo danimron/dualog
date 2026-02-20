@@ -53,7 +53,7 @@ export default async function FeedPage() {
     )
   }
 
-  const posts = result.data
+  const posts: { id: string; title: string; content: string; isPublic: boolean; createdAt: Date; updatedAt: Date; author: { name: string; email: string } }[] = result.data
 
   return (
     <div className="min-h-screen bg-gray-50">
