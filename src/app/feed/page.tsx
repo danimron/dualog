@@ -72,7 +72,7 @@ export default async function FeedPage() {
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {posts.map((post) => (
+            {posts.map((post: { id: string; title: string; content: string; isPublic: boolean; createdAt: Date; updatedAt: Date; author: { name: string; email: string } }) => (
               <Link
                 key={post.id}
                 href={`/feed/${post.id}`}
